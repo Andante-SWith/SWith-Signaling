@@ -30,6 +30,15 @@ const getStudyRoomOut = (studyroom_id) => {
   );
 };
 
+const getStudyRoomEnter = (studyroom_id) => {
+  request.get(
+    { uri: `http://118.67.133.19:8080/studyrooms/${studyroom_id}/enter` },
+    (error, response, body) => {
+      if (error) console.log(error);
+    },
+  );
+};
+
 const getTime = (seconds) => {
   var hour =
     parseInt(seconds / 3600) < 10
@@ -87,6 +96,7 @@ io.on('connection', (socket) => {
     }
     socketToRoom[socket.id] = data.room;
     socket.join(data.room);
+    getStudyRoomEnter(data.room);
   });
 
   socket.on('users_in_room', (data) => {
@@ -130,6 +140,12 @@ io.on('connection', (socket) => {
     const room = socketToRoom[data.messageSendID];
     users[room].map((user) => {
       socket.to(user.socketId).emit('chatting', data);
+    });
+  });
+
+  socket.on('reload_all_users', (data) => {
+    users[data.room].map((user) => {
+      socket.to(user.socketId).emit('reload', data);
     });
   });
 
