@@ -149,6 +149,14 @@ io.on('connection', (socket) => {
     });
   });
 
+  socket.on('delete_studyroom', (data) => {
+    if (users[data.room]) {
+      users[data.room].map((user) => {
+        socket.to(user.socketId).emit('all_user_exit', data);
+      });
+    }
+  });
+
   socket.on('kickOut', (data) => {
     const room = socketToRoom[data.socketId];
     users[room].map((user) => {
